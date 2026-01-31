@@ -1,68 +1,162 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { CssBaseline, Container, Box, Typography, Button, TextField, Paper } from "@mui/material";
+import {
+  CssBaseline,
+  Container,
+  Box,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  IconButton,
+  CSSObject,
+  Theme,
+  styled
+} from "@mui/material";
+import {
+  MoveToInbox as InboxIcon,
+  Mail as MailIcon,
+  AccessTime as AccessTimeIcon
+} from "@mui/icons-material";
+
+const drawerWidth = 240;
+
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: "hidden",
+});
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up("sm")]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center", // Centered by default for closed state
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+}));
+
+const MuiDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    ...(open && {
+      ...openedMixin(theme),
+      "& .MuiDrawer-paper": openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      "& .MuiDrawer-paper": closedMixin(theme),
+    }),
+  })
+);
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [open, setOpen] = useState(false);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
   return (
-    <Container maxWidth="md">
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <Box sx={{ my: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          TimeTracker-R
-        </Typography>
-
-        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-          <a href="https://vite.dev" target="_blank">
-            <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-          </a>
-          <a href="https://tauri.app" target="_blank">
-            <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-          </a>
-          <a href="https://react.dev" target="_blank">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
-        </Box>
-        <Typography variant="body1" gutterBottom>
-          Click on the Tauri, Vite, and React logos to learn more.
-        </Typography>
-
-        <Paper elevation={3} sx={{ p: 4, mt: 4, width: '100%', maxWidth: 500 }}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              greet();
-            }}
-            style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-          >
-            <TextField
-              id="greet-input"
-              label="Enter a name..."
-              variant="outlined"
-              fullWidth
-              onChange={(e) => setName(e.currentTarget.value)}
-            />
-            <Button variant="contained" type="submit" size="large">
-              Greet
-            </Button>
-          </form>
-          {greetMsg && (
-            <Typography variant="h6" sx={{ mt: 2, textAlign: 'center' }}>
-              {greetMsg}
+      <MuiDrawer variant="permanent" open={open}>
+        <DrawerHeader sx={{ justifyContent: open ? 'flex-start' : 'center', px: open ? 2 : 1 }}>
+          <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen} sx={{ p: 1 }}>
+            <AccessTimeIcon color="primary" />
+          </IconButton>
+          {open && (
+            <Typography variant="h6" noWrap component="div" sx={{ ml: 1, fontWeight: 'bold' }}>
+              TimeTracker-R
             </Typography>
           )}
-        </Paper>
+        </DrawerHeader>
+        <Divider />
+        <List>
+          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                sx={[
+                  {
+                    minHeight: 48,
+                    px: 2.5,
+                  },
+                  open
+                    ? {
+                      justifyContent: "initial",
+                    }
+                    : {
+                      justifyContent: "center",
+                    },
+                ]}
+              >
+                <ListItemIcon
+                  sx={[
+                    {
+                      minWidth: 0,
+                      justifyContent: "center",
+                    },
+                    open
+                      ? {
+                        mr: 3,
+                      }
+                      : {
+                        mr: "auto",
+                      },
+                  ]}
+                >
+                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={text}
+                  sx={[
+                    open
+                      ? {
+                        opacity: 1,
+                      }
+                      : {
+                        opacity: 0,
+                      },
+                  ]}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </MuiDrawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <DrawerHeader />
+        <Container maxWidth="md">
+          {/* Main content will go here */}
+        </Container>
       </Box>
-    </Container>
+    </Box>
   );
 }
 
