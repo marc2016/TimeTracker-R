@@ -17,10 +17,12 @@ import {
     styled
 } from "@mui/material";
 import {
-    AccessTime as AccessTimeIcon
+    AccessTime as AccessTimeIcon,
+    Settings as SettingsIcon
 } from "@mui/icons-material";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useSettingsStore } from "../store/useSettingsStore";
 
 const drawerWidth = 240;
 
@@ -75,6 +77,7 @@ export default function RootLayout() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { appBackground } = useSettingsStore();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -86,6 +89,7 @@ export default function RootLayout() {
 
     const menuItems = [
         { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
     ];
 
     return (
@@ -157,9 +161,22 @@ export default function RootLayout() {
                     ))}
                 </List>
             </MuiDrawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    minHeight: '100vh',
+                    backgroundImage: appBackground ? `url(${appBackground})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundAttachment: 'fixed'
+                }}
+            >
                 <DrawerHeader />
                 <Container maxWidth="md">
+                    {/* Add a subtle paper background or transparency if background image is active, 
+                so text remains readable. For now just rendering outlet. */}
                     <Outlet />
                 </Container>
             </Box>
