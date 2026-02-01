@@ -18,10 +18,11 @@ import {
   styled
 } from "@mui/material";
 import {
-  MoveToInbox as InboxIcon,
-  Mail as MailIcon,
   AccessTime as AccessTimeIcon
 } from "@mui/icons-material";
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
 
 const drawerWidth = 240;
 
@@ -49,7 +50,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  justifyContent: "center", // Centered by default for closed state
+  justifyContent: "center",
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
@@ -74,6 +75,8 @@ const MuiDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== "open" 
 
 function App() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -82,6 +85,10 @@ function App() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const menuItems = [
+    { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+  ];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -99,9 +106,11 @@ function App() {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+          {menuItems.map((item) => (
+            <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
+                selected={location.pathname === item.path}
+                onClick={() => navigate(item.path)}
                 sx={[
                   {
                     minHeight: 48,
@@ -131,10 +140,10 @@ function App() {
                       },
                   ]}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {item.icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={text}
+                  primary={item.text}
                   sx={[
                     open
                       ? {
@@ -153,7 +162,9 @@ function App() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Container maxWidth="md">
-          {/* Main content will go here */}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
         </Container>
       </Box>
     </Box>
