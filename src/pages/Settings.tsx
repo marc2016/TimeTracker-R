@@ -28,7 +28,7 @@ export default function Settings() {
                 elevation={3}
                 sx={{
                     p: 4,
-                    backgroundColor: 'rgba(255, 255, 255, 0.75)', // Semi-transparent white
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Semi-transparent white
                     backdropFilter: 'blur(8px)', // Blur effect for glassmorphism
                     borderRadius: 2
                 }}

@@ -9,9 +9,11 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import { useSettingsStore } from "./store/useSettingsStore";
+import { useTaskStore } from "./store/useTaskStore";
 
-// Initialize settings
+// Initialize stores
 useSettingsStore.getState().init();
+useTaskStore.getState().init();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
