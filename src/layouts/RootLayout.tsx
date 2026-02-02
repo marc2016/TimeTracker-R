@@ -78,6 +78,8 @@ import TitleBar from "../components/TitleBar";
 
 // ... existing imports
 
+import { AnimatePresence, motion } from "framer-motion";
+
 export default function RootLayout() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
@@ -101,6 +103,39 @@ export default function RootLayout() {
     return (
         <Box sx={{ display: "flex", mt: "30px" }}> {/* Margin top for TitleBar */}
             <CssBaseline />
+
+            {/* Animated Background Layer */}
+            <Box
+                sx={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 0, // Changed from -1 to 0 to be visible above body bg
+                    bgcolor: '#f6f6f6', // Fallback color
+                }}
+            >
+                <AnimatePresence mode="popLayout">
+                    {appBackground && (
+                        <motion.div
+                            key={appBackground}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.8 }}
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                backgroundImage: `url(${appBackground})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }}
+                        />
+                    )}
+                </AnimatePresence>
+            </Box>
+
             <TitleBar />
             <MuiDrawer variant="permanent" open={open} PaperProps={{ sx: { top: "30px", height: "calc(100% - 30px)" } }}>
                 <DrawerHeader sx={{ justifyContent: open ? 'flex-start' : 'center', px: open ? 2 : 1 }}>
@@ -175,10 +210,9 @@ export default function RootLayout() {
                     p: 3,
                     height: 'calc(100vh - 30px)',
                     overflowY: 'auto',
-                    backgroundImage: appBackground ? `url(${appBackground})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundAttachment: 'fixed'
+                    position: 'relative', // Ensure stacking context
+                    zIndex: 1, // Sit above background
+                    // Background moved to separate layer
                 }}
             >
                 <DrawerHeader />
