@@ -19,7 +19,7 @@ import {
 import {
     AccessTime as AccessTimeIcon,
     Settings as SettingsIcon,
-    List as ListIcon
+    TaskAlt
 } from "@mui/icons-material";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
@@ -96,7 +96,7 @@ export default function RootLayout() {
 
     const menuItems = [
         { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
-        { text: "Tasks", icon: <ListIcon />, path: "/tasks" },
+        { text: "Tasks", icon: <TaskAlt />, path: "/tasks" },
         { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
     ];
 

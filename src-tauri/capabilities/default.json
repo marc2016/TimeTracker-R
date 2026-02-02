@@ -20,6 +20,8 @@
         "$APPCONFIG",
         "$APPCONFIG/**"
       ]
-    }
+    },
+    "sql:default",
+    "sql:allow-execute"
   ]
 }
