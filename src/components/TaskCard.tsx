@@ -54,7 +54,6 @@ export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCard
                     cursor: 'pointer'
                 }
             }}
-            onClick={() => onClick && onClick(task)}
         >
             {/* Background Icon */}
             <Box
@@ -76,6 +75,7 @@ export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCard
             </Box>
 
             <CardActionArea
+                onClick={() => onClick && onClick(task)}
                 sx={{
                     flexGrow: 1,
                     display: 'flex',

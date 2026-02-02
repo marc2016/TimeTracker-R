@@ -5,77 +5,65 @@ import {
     TextField,
     Button,
     Grid,
-    Paper,
-    Divider
+    Divider,
+    Fab,
+    Drawer
 } from "@mui/material";
-import { useTaskStore } from "../store/useTaskStore";
+import AddIcon from "@mui/icons-material/Add";
+import { useTaskStore, Task } from "../store/useTaskStore";
 import TaskCard from "../components/TaskCard";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 export default function Tasks() {
-    const { tasks, addTask, toggleTask, deleteTask } = useTaskStore();
+    const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTaskStore();
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
-    const handleAddTask = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (title.trim()) {
-            addTask(title, description);
+    const handleOpenDrawer = (task?: Task) => {
+        if (task) {
+            setEditingTask(task);
+            setTitle(task.title);
+            setDescription(task.description);
+        } else {
+            setEditingTask(null);
             setTitle("");
             setDescription("");
         }
+        setIsDrawerOpen(true);
+    };
+
+    const handleCloseDrawer = (_event: {}, reason: "backdropClick" | "escapeKeyDown") => {
+        if (reason === "backdropClick") {
+            return;
+        }
+        setIsDrawerOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsDrawerOpen(false);
+    };
+
+    const handleSave = () => {
+        if (!title.trim()) return;
+
+        if (editingTask) {
+            updateTask(editingTask.id, title, description);
+        } else {
+            addTask(title, description);
+        }
+        setIsDrawerOpen(false);
     };
 
     const openTasks = tasks.filter(task => !task.completed).sort((a, b) => b.createdAt - a.createdAt);
     const completedTasks = tasks.filter(task => task.completed).sort((a, b) => b.updatedAt - a.updatedAt);
 
     return (
-        <Box sx={{ pb: 4 }}>
+        <Box sx={{ pb: 10 }}> {/* Added padding for FAB */}
             <Typography variant="h4" gutterBottom sx={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
                 Aufgaben
             </Typography>
-
-            {/* Input Section */}
-            <Paper
-                elevation={3}
-                sx={{
-                    p: 3,
-                    mb: 4,
-                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                    backdropFilter: 'blur(8px)',
-                    borderRadius: 2
-                }}
-                component="form"
-                onSubmit={handleAddTask}
-            >
-                <Grid container spacing={2} alignItems="flex-start">
-                    <Grid size={{ xs: 12, sm: 5 }}>
-                        <TextField
-                            fullWidth
-                            label="Name der Aufgabe"
-                            variant="outlined"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            size="small"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 5 }}>
-                        <TextField
-                            fullWidth
-                            label="Beschreibung"
-                            variant="outlined"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            size="small"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 2 }}>
-                        <Button type="submit" variant="contained" fullWidth disabled={!title.trim()} sx={{ height: 40 }}>
-                            Add
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Paper>
 
             <LayoutGroup>
                 {/* Open Tasks */}
@@ -106,6 +94,7 @@ export default function Tasks() {
                                         task={task}
                                         onToggle={toggleTask}
                                         onDelete={deleteTask}
+                                        onClick={() => handleOpenDrawer(task)}
                                     />
                                 </Grid>
                             ))}
@@ -138,6 +127,7 @@ export default function Tasks() {
                                             task={task}
                                             onToggle={toggleTask}
                                             onDelete={deleteTask}
+                                            onClick={() => handleOpenDrawer(task)}
                                         />
                                     </Grid>
                                 ))}
@@ -146,6 +136,67 @@ export default function Tasks() {
                     </Box>
                 )}
             </LayoutGroup>
+
+            {/* FAB */}
+            <Fab
+                sx={{
+                    position: 'fixed',
+                    bottom: 32,
+                    right: 32,
+                    zIndex: 1000,
+                    bgcolor: 'white',
+                    color: 'black',
+                    '&:hover': {
+                        bgcolor: '#f5f5f5' // slightly grey on hover
+                    }
+                }}
+                onClick={() => handleOpenDrawer()}
+            >
+                <AddIcon />
+            </Fab>
+
+            {/* Action Drawer */}
+            <Drawer
+                anchor="right"
+                open={isDrawerOpen}
+                onClose={handleCloseDrawer}
+                PaperProps={{
+                    sx: { width: { xs: '100%', sm: 400 }, p: 3, pt: 5 }
+                }}
+            >
+                <Typography variant="h5" gutterBottom sx={{ mb: 4 }}>
+                    {editingTask ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'}
+                </Typography>
+
+                <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <TextField
+                        fullWidth
+                        label="Titel"
+                        variant="outlined"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Beschreibung"
+                        variant="outlined"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        multiline
+                        rows={4}
+                    />
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 'auto', pt: 4 }}>
+                    <Button variant="outlined" onClick={handleCancel} color="inherit">
+                        Abbrechen
+                    </Button>
+                    <Button variant="contained" onClick={handleSave} disabled={!title.trim()}>
+                        Speichern
+                    </Button>
+                </Box>
+            </Drawer>
         </Box>
     );
 }

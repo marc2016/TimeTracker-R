@@ -13,6 +13,7 @@ export interface Task {
 interface TaskState {
     tasks: Task[];
     addTask: (title: string, description: string) => void;
+    updateTask: (id: string, title: string, description: string) => void;
     toggleTask: (id: string) => void;
     deleteTask: (id: string) => void;
     init: () => Promise<void>;
@@ -45,6 +46,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             updatedAt: now,
         };
         const updatedTasks = [...get().tasks, newTask];
+        set({ tasks: updatedTasks });
+        saveTasks(updatedTasks);
+    },
+    updateTask: (id: string, title: string, description: string) => {
+        const updatedTasks = get().tasks.map(task =>
+            task.id === id ? { ...task, title, description, updatedAt: Date.now() } : task
+        );
         set({ tasks: updatedTasks });
         saveTasks(updatedTasks);
     },
