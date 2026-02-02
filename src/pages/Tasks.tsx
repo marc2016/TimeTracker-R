@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useTaskStore } from "../store/useTaskStore";
 import TaskCard from "../components/TaskCard";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 export default function Tasks() {
     const { tasks, addTask, toggleTask, deleteTask } = useTaskStore();
@@ -34,7 +35,7 @@ export default function Tasks() {
                 Aufgaben
             </Typography>
 
-            {/* Input Section - Kept in a small paper for readability of inputs */}
+            {/* Input Section */}
             <Paper
                 elevation={3}
                 sx={{
@@ -76,49 +77,75 @@ export default function Tasks() {
                 </Grid>
             </Paper>
 
-            {/* Open Tasks */}
-            <Box sx={{ mb: 6 }}>
-                <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    Offene Aufgaben ({openTasks.length})
-                </Typography>
-                {openTasks.length === 0 && (
-                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', fontStyle: 'italic' }}>
-                        Keine offenen Aufgaben.
+            <LayoutGroup>
+                {/* Open Tasks */}
+                <Box sx={{ mb: 6 }}>
+                    <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', gap: 1 }}>
+                        Offene Aufgaben ({openTasks.length})
                     </Typography>
-                )}
-                <Grid container spacing={2}>
-                    {openTasks.map((task) => (
-                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task.id}>
-                            <TaskCard
-                                task={task}
-                                onToggle={toggleTask}
-                                onDelete={deleteTask}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
-
-            {/* Completed Tasks */}
-            {completedTasks.length > 0 && (
-                <Box>
-                    <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.3)', borderBottomWidth: 2 }} />
-                    <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-                        Erledigt ({completedTasks.length})
-                    </Typography>
+                    {openTasks.length === 0 && (
+                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', fontStyle: 'italic' }}>
+                            Keine offenen Aufgaben.
+                        </Typography>
+                    )}
                     <Grid container spacing={2}>
-                        {completedTasks.map((task) => (
-                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task.id}>
-                                <TaskCard
-                                    task={task}
-                                    onToggle={toggleTask}
-                                    onDelete={deleteTask}
-                                />
-                            </Grid>
-                        ))}
+                        <AnimatePresence mode="popLayout">
+                            {openTasks.map((task) => (
+                                <Grid
+                                    size={{ xs: 12, sm: 6, md: 4 }}
+                                    key={task.id}
+                                    component={motion.div}
+                                    layoutId={task.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <TaskCard
+                                        task={task}
+                                        onToggle={toggleTask}
+                                        onDelete={deleteTask}
+                                    />
+                                </Grid>
+                            ))}
+                        </AnimatePresence>
                     </Grid>
                 </Box>
-            )}
+
+                {/* Completed Tasks */}
+                {completedTasks.length > 0 && (
+                    <Box>
+                        <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.3)', borderBottomWidth: 2 }} />
+                        <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                            Erledigt ({completedTasks.length})
+                        </Typography>
+                        <Grid container spacing={2}>
+                            <AnimatePresence mode="popLayout">
+                                {completedTasks.map((task) => (
+                                    <Grid
+                                        size={{ xs: 12, sm: 6, md: 4 }}
+                                        key={task.id}
+                                        component={motion.div}
+                                        layoutId={task.id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <TaskCard
+                                            task={task}
+                                            onToggle={toggleTask}
+                                            onDelete={deleteTask}
+                                        />
+                                    </Grid>
+                                ))}
+                            </AnimatePresence>
+                        </Grid>
+                    </Box>
+                )}
+            </LayoutGroup>
         </Box>
     );
 }

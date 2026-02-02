@@ -40,8 +40,9 @@ export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCard
         <Card
             variant="outlined"
             sx={{
-                width: 300,
-                height: 200,
+                width: '100%',
+                // maxWidth: 300, // Let Grid handle width
+                minHeight: 200,
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
