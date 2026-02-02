@@ -3,14 +3,16 @@ import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from '@taur
 
 export interface Task {
     id: string;
-    text: string;
+    title: string;
+    description: string;
     completed: boolean;
     createdAt: number;
+    updatedAt: number;
 }
 
 interface TaskState {
     tasks: Task[];
-    addTask: (text: string) => void;
+    addTask: (title: string, description: string) => void;
     toggleTask: (id: string) => void;
     deleteTask: (id: string) => void;
     init: () => Promise<void>;
@@ -32,12 +34,15 @@ const saveTasks = async (tasks: Task[]) => {
 
 export const useTaskStore = create<TaskState>((set, get) => ({
     tasks: [],
-    addTask: (text: string) => {
+    addTask: (title: string, description: string) => {
+        const now = Date.now();
         const newTask: Task = {
             id: crypto.randomUUID(),
-            text,
+            title,
+            description,
             completed: false,
-            createdAt: Date.now(),
+            createdAt: now,
+            updatedAt: now,
         };
         const updatedTasks = [...get().tasks, newTask];
         set({ tasks: updatedTasks });
@@ -45,7 +50,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     },
     toggleTask: (id: string) => {
         const updatedTasks = get().tasks.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
+            task.id === id ? { ...task, completed: !task.completed, updatedAt: Date.now() } : task
         );
         set({ tasks: updatedTasks });
         saveTasks(updatedTasks);
@@ -63,7 +68,14 @@ export const useTaskStore = create<TaskState>((set, get) => ({
                 });
                 const data = JSON.parse(tasksText);
                 if (data.tasks) {
-                    set({ tasks: data.tasks });
+                    // Migration: Ensure compat with old structure
+                    const loadedTasks = data.tasks.map((t: any) => ({
+                        ...t,
+                        title: t.title || t.text || 'Untitled',
+                        description: t.description || '',
+                        updatedAt: t.updatedAt || t.createdAt || Date.now()
+                    }));
+                    set({ tasks: loadedTasks });
                 }
             }
         } catch (error) {
