@@ -74,6 +74,10 @@ const MuiDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== "open" 
     })
 );
 
+import TitleBar from "../components/TitleBar";
+
+// ... existing imports
+
 export default function RootLayout() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
@@ -95,9 +99,10 @@ export default function RootLayout() {
     ];
 
     return (
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", mt: "30px" }}> {/* Margin top for TitleBar */}
             <CssBaseline />
-            <MuiDrawer variant="permanent" open={open}>
+            <TitleBar />
+            <MuiDrawer variant="permanent" open={open} PaperProps={{ sx: { top: "30px", height: "calc(100% - 30px)" } }}>
                 <DrawerHeader sx={{ justifyContent: open ? 'flex-start' : 'center', px: open ? 2 : 1 }}>
                     <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen} sx={{ p: 1 }}>
                         <AccessTimeIcon color="primary" />
@@ -168,7 +173,7 @@ export default function RootLayout() {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    minHeight: '100vh',
+                    minHeight: 'calc(100vh - 30px)',
                     backgroundImage: appBackground ? `url(${appBackground})` : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -177,8 +182,6 @@ export default function RootLayout() {
             >
                 <DrawerHeader />
                 <Container maxWidth="md">
-                    {/* Add a subtle paper background or transparency if background image is active, 
-                so text remains readable. For now just rendering outlet. */}
                     <Outlet />
                 </Container>
             </Box>
