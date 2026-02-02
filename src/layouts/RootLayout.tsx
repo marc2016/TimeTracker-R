@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import {
     AccessTime as AccessTimeIcon,
+    BugReport,
     Settings as SettingsIcon,
     TaskAlt
 } from "@mui/icons-material";
@@ -97,6 +98,7 @@ export default function RootLayout() {
     const menuItems = [
         { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
         { text: "Tasks", icon: <TaskAlt />, path: "/tasks" },
+        { text: "Test", icon: <BugReport />, path: "/test" },
         { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
     ];
 
@@ -216,7 +218,7 @@ export default function RootLayout() {
                 }}
             >
                 <DrawerHeader />
-                <Container maxWidth="md">
+                <Container maxWidth="xl">
                     <Outlet />
                 </Container>
             </Box>

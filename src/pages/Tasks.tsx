@@ -7,9 +7,11 @@ import {
     Grid,
     Divider,
     Fab,
-    Drawer
+    Drawer,
+    Chip
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useTaskStore, Task } from "../store/useTaskStore";
 import TaskCard from "../components/TaskCard";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -61,26 +63,24 @@ export default function Tasks() {
 
     return (
         <Box sx={{ pb: 10 }}> {/* Added padding for FAB */}
-            <Typography variant="h4" gutterBottom sx={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                Aufgaben
-            </Typography>
+
 
             <LayoutGroup>
                 {/* Open Tasks */}
                 <Box sx={{ mb: 6 }}>
-                    <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', gap: 1 }}>
-                        Offene Aufgaben ({openTasks.length})
-                    </Typography>
                     {openTasks.length === 0 && (
-                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', fontStyle: 'italic' }}>
+                        <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontStyle: 'italic' }}>
                             Keine offenen Aufgaben.
                         </Typography>
                     )}
-                    <Grid container spacing={2}>
+                    <Box sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: 2
+                    }}>
                         <AnimatePresence mode="popLayout">
                             {openTasks.map((task) => (
-                                <Grid
-                                    size={{ xs: 12, sm: 6, md: 4 }}
+                                <Box
                                     key={task.id}
                                     component={motion.div}
                                     layoutId={task.id}
@@ -89,6 +89,7 @@ export default function Tasks() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     transition={{ duration: 0.3 }}
+                                    sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
                                 >
                                     <TaskCard
                                         task={task}
@@ -96,24 +97,32 @@ export default function Tasks() {
                                         onDelete={deleteTask}
                                         onClick={() => handleOpenDrawer(task)}
                                     />
-                                </Grid>
+                                </Box>
                             ))}
                         </AnimatePresence>
-                    </Grid>
+                    </Box>
                 </Box>
 
                 {/* Completed Tasks */}
                 {completedTasks.length > 0 && (
                     <Box>
-                        <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.3)', borderBottomWidth: 2 }} />
-                        <Typography variant="h5" sx={{ mb: 2, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-                            Erledigt ({completedTasks.length})
-                        </Typography>
-                        <Grid container spacing={2}>
+                        <Divider textAlign="left" sx={{
+                            my: 4,
+                            "&::before, &::after": {
+                                borderColor: 'rgba(73, 181, 23, 0.5)',
+                                borderTopWidth: 2
+                            }
+                        }} >
+                            <Chip icon={<TaskAltIcon />} label="Abgeschlossene Aufgaben" color="success" />
+                        </Divider>
+                        <Box sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gap: 2
+                        }}>
                             <AnimatePresence mode="popLayout">
                                 {completedTasks.map((task) => (
-                                    <Grid
-                                        size={{ xs: 12, sm: 6, md: 4 }}
+                                    <Box
                                         key={task.id}
                                         component={motion.div}
                                         layoutId={task.id}
@@ -122,6 +131,7 @@ export default function Tasks() {
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
                                         transition={{ duration: 0.3 }}
+                                        sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
                                     >
                                         <TaskCard
                                             task={task}
@@ -129,10 +139,10 @@ export default function Tasks() {
                                             onDelete={deleteTask}
                                             onClick={() => handleOpenDrawer(task)}
                                         />
-                                    </Grid>
+                                    </Box>
                                 ))}
                             </AnimatePresence>
-                        </Grid>
+                        </Box>
                     </Box>
                 )}
             </LayoutGroup>
