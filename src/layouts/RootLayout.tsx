@@ -173,7 +173,8 @@ export default function RootLayout() {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    minHeight: 'calc(100vh - 30px)',
+                    height: 'calc(100vh - 30px)',
+                    overflowY: 'auto',
                     backgroundImage: appBackground ? `url(${appBackground})` : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
