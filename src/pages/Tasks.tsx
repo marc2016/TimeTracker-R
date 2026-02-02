@@ -14,7 +14,7 @@ import TaskDrawer from "../components/TaskDrawer";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 export default function Tasks() {
-    const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTaskStore();
+    const { tasks, addTask, updateTask, toggleTask, toggleTaskTimer, deleteTask } = useTaskStore();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -70,6 +70,7 @@ export default function Tasks() {
                                     <TaskCard
                                         task={task}
                                         onToggle={toggleTask}
+                                        onToggleTimer={toggleTaskTimer}
                                         onDelete={deleteTask}
                                         onClick={() => handleOpenDrawer(task)}
                                     />
@@ -112,6 +113,7 @@ export default function Tasks() {
                                         <TaskCard
                                             task={task}
                                             onToggle={toggleTask}
+                                            onToggleTimer={toggleTaskTimer}
                                             onDelete={deleteTask}
                                             onClick={() => handleOpenDrawer(task)}
                                         />

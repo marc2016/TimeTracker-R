@@ -16,15 +16,19 @@ import {
     Theme,
     styled
 } from "@mui/material";
+import { useEffect } from "react";
 import {
     AccessTime as AccessTimeIcon,
     BugReport,
     Settings as SettingsIcon,
-    TaskAlt
+    TaskAlt,
+    PlayArrow,
+    Pause
 } from "@mui/icons-material";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useSettingsStore } from "../store/useSettingsStore";
+import { useTaskStore } from "../store/useTaskStore";
 
 const drawerWidth = 240;
 
@@ -80,6 +84,144 @@ import TitleBar from "../components/TitleBar";
 // ... existing imports
 
 import { AnimatePresence, motion } from "framer-motion";
+
+const ActiveTaskFooter = ({ open }: { open: boolean }) => {
+    const { tasks, toggleTaskTimer, lastActiveTaskId } = useTaskStore();
+
+    // Prioritize currently running task, otherwise fallback to lastActiveTaskId
+    const runningTask = tasks.find(t => !!t.lastStartTime);
+    const activeTask = runningTask || tasks.find(t => t.id === lastActiveTaskId);
+
+    const [duration, setDuration] = useState(0);
+    const isRunning = !!activeTask?.lastStartTime;
+
+    // Update duration every second or initially
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (!activeTask) return;
+
+        const updateDuration = () => {
+            const now = Date.now();
+            const current = activeTask.lastStartTime
+                ? activeTask.accumulatedDuration + (now - activeTask.lastStartTime)
+                : activeTask.accumulatedDuration;
+            setDuration(current);
+        };
+
+        updateDuration(); // Initial update
+
+        if (activeTask.lastStartTime) {
+            const interval = setInterval(updateDuration, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [activeTask?.id, activeTask?.lastStartTime, activeTask?.accumulatedDuration]);
+
+    if (!activeTask) return null;
+
+    const formatDuration = (ms: number) => {
+        const seconds = Math.floor(ms / 1000);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    return (
+        <Box
+            sx={{
+                mt: 'auto',
+                p: open ? 2 : 1,
+                borderTop: '1px solid rgba(0,0,0,0.12)',
+                backgroundColor: 'background.paper',
+                display: 'flex',
+                flexDirection: open ? 'row' : 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden'
+            }}
+        >
+            {open ? (
+                <>
+                    <Box sx={{ flexGrow: 1, minWidth: 0, mr: 1 }}>
+                        <Typography variant="subtitle2" noWrap title={activeTask.title}>
+                            {activeTask.title}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            {formatDuration(duration)}
+                        </Typography>
+                    </Box>
+                    <IconButton
+                        color="primary"
+                        onClick={() => toggleTaskTimer(activeTask.id)}
+                        size="small"
+                    >
+                        {isRunning ? <Pause /> : <PlayArrow />}
+                    </IconButton>
+                </>
+            ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 0.5 }}>
+                    <IconButton
+                        color="primary"
+                        onClick={() => toggleTaskTimer(activeTask.id)}
+                        title={activeTask.title}
+                        size="small"
+                        sx={{
+                            p: 0,
+                            width: 30,
+                            height: 30,
+                            position: 'relative' // For absolute positioning of children if needed, or we use a Box wrapper
+                        }}
+                    >
+                        {/* Layered Icons */}
+                        <Box sx={{ position: 'relative', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {/* Base Clock Icon - slightly faded or behind */}
+                            <AccessTimeIcon
+                                sx={{
+                                    fontSize: 24,
+                                    opacity: 0.3,
+                                    position: 'absolute'
+                                }}
+                            />
+                            {/* Overlay Action Icon */}
+                            {isRunning ? (
+                                <Pause
+                                    sx={{
+                                        fontSize: 16,
+                                        zIndex: 1,
+                                        color: 'primary.main'
+                                    }}
+                                />
+                            ) : (
+                                <PlayArrow
+                                    sx={{
+                                        fontSize: 16,
+                                        zIndex: 1,
+                                        color: 'primary.main'
+                                    }}
+                                />
+                            )}
+                        </Box>
+                    </IconButton>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            fontSize: '0.65rem',
+                            lineHeight: 1,
+                            mt: 0.5,
+                            fontWeight: 'bold',
+                            color: 'primary.main',
+                            textAlign: 'center',
+                            width: '100%',
+                            display: 'block'
+                        }}
+                    >
+                        {formatDuration(duration)}
+                    </Typography>
+                </Box>
+            )}
+        </Box>
+    );
+};
 
 export default function RootLayout() {
     const [open, setOpen] = useState(false);
@@ -204,6 +346,7 @@ export default function RootLayout() {
                         </ListItem>
                     ))}
                 </List>
+                <ActiveTaskFooter open={open} />
             </MuiDrawer>
             <Box
                 component="main"

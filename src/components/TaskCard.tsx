@@ -11,18 +11,44 @@ import {
     CheckCircleOutline,
     Delete,
     Update,
-    Adjust
+    Adjust,
+    PlayArrow,
+    Pause
 } from "@mui/icons-material";
 import { Task } from "../store/useTaskStore";
 
 interface TaskCardProps {
     task: Task;
     onToggle: (id: string) => void;
+    onToggleTimer: (id: string) => void;
     onDelete: (id: string) => void;
     onClick?: (task: Task) => void;
 }
 
-export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCardProps) {
+export default function TaskCard({ task, onToggle, onToggleTimer, onDelete, onClick }: TaskCardProps) {
+    const isRunning = !!task.lastStartTime;
+
+    // Helper to format duration in HH:MM:ss
+    const formatDuration = (ms: number) => {
+        const seconds = Math.floor(ms / 1000);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    // Live duration calculation
+    const currentDuration = isRunning
+        ? task.accumulatedDuration + (Date.now() - (task.lastStartTime || Date.now()))
+        : task.accumulatedDuration;
+
+    // Force re-render every second if running (hacky but simple for now, ideally use a separate Timer component)
+    // Actually, let's use a separate component for the timer text to avoid re-rendering the whole card? 
+    // Or just use a text that updates itself.
+
+    // Let's implement a simple TimerDisplay component inline or simply hook for now.
+    // If I put `useNow` hook here it will re-render the card.
+
 
     // Format dates to YYYY-MM-DD HH:mm:ss
     const formatDate = (timestamp: number) => {
@@ -125,7 +151,7 @@ export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCard
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto', pt: 1, width: '100%', zIndex: 1 }}>
                     <Update sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
                     <Typography variant="caption" color="text.disabled">
-                        {formatDate(task.updatedAt)}
+                        {formatDuration(currentDuration)} • {formatDate(task.updatedAt)}
                     </Typography>
                 </Box>
             </CardActionArea>
@@ -143,6 +169,18 @@ export default function TaskCard({ task, onToggle, onDelete, onClick }: TaskCard
                     sx={{ color: 'rgba(0, 0, 0, 0.6)' }} // medium-emphasis
                 >
                     {task.completed ? <Adjust /> : <CheckCircleOutline />}
+                </IconButton>
+
+                {/* Timer Toggle */}
+                <IconButton
+                    size="small"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleTimer(task.id);
+                    }}
+                    sx={{ color: isRunning ? 'primary.main' : 'rgba(0, 0, 0, 0.6)' }}
+                >
+                    {isRunning ? <Pause /> : <PlayArrow />}
                 </IconButton>
 
                 {/* Delete Button */}
