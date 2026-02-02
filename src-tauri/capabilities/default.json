@@ -8,6 +8,18 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "core:window:allow-start-dragging"
+    "core:window:allow-start-dragging",
+    "fs:default",
+    "fs:allow-write-text-file",
+    "fs:allow-read-text-file",
+    "fs:allow-mkdir",
+    "fs:allow-exists",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        "$APPCONFIG",
+        "$APPCONFIG/**"
+      ]
+    }
   ]
 }
