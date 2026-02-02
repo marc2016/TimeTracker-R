@@ -13,7 +13,7 @@ export interface Task {
 interface TaskState {
     tasks: Task[];
     addTask: (title: string, description: string) => Promise<void>;
-    updateTask: (id: string, title: string, description: string) => Promise<void>;
+    updateTask: (id: string, title: string, description: string, completed: boolean) => Promise<void>;
     toggleTask: (id: string) => Promise<void>;
     deleteTask: (id: string) => Promise<void>;
     init: () => Promise<void>;
@@ -52,17 +52,18 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             console.error('Failed to add task:', error);
         }
     },
-    updateTask: async (id: string, title: string, description: string) => {
+    updateTask: async (id: string, title: string, description: string, completed: boolean) => {
         const now = Date.now();
+        const completedVal = completed ? 1 : 0;
         try {
             await db.updateTable('tasks')
-                .set({ title, description, updated_at: now })
+                .set({ title, description, completed: completedVal, updated_at: now })
                 .where('id', '=', id)
                 .execute();
 
             set({
                 tasks: get().tasks.map(task =>
-                    task.id === id ? { ...task, title, description, updatedAt: now } : task
+                    task.id === id ? { ...task, title, description, completed, updatedAt: now } : task
                 )
             });
         } catch (error) {

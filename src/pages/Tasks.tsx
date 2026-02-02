@@ -2,60 +2,37 @@ import { useState } from "react";
 import {
     Typography,
     Box,
-    TextField,
-    Button,
-    Grid,
     Divider,
     Fab,
-    Drawer,
     Chip
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useTaskStore, Task } from "../store/useTaskStore";
 import TaskCard from "../components/TaskCard";
+import TaskDrawer from "../components/TaskDrawer";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 export default function Tasks() {
     const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTaskStore();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
 
     const handleOpenDrawer = (task?: Task) => {
-        if (task) {
-            setEditingTask(task);
-            setTitle(task.title);
-            setDescription(task.description);
-        } else {
-            setEditingTask(null);
-            setTitle("");
-            setDescription("");
-        }
+        setEditingTask(task || null);
         setIsDrawerOpen(true);
     };
 
-    const handleCloseDrawer = (_event: {}, reason: "backdropClick" | "escapeKeyDown") => {
-        if (reason === "backdropClick") {
-            return;
-        }
+    const handleCloseDrawer = () => {
         setIsDrawerOpen(false);
     };
 
-    const handleCancel = () => {
-        setIsDrawerOpen(false);
-    };
-
-    const handleSave = () => {
-        if (!title.trim()) return;
-
+    const handleSaveTask = (title: string, description: string, completed: boolean) => {
         if (editingTask) {
-            updateTask(editingTask.id, title, description);
+            updateTask(editingTask.id, title, description, completed);
         } else {
             addTask(title, description);
         }
-        setIsDrawerOpen(false);
     };
 
     const openTasks = tasks.filter(task => !task.completed).sort((a, b) => b.createdAt - a.createdAt);
@@ -63,7 +40,6 @@ export default function Tasks() {
 
     return (
         <Box sx={{ pb: 10 }}> {/* Added padding for FAB */}
-
 
             <LayoutGroup>
                 {/* Open Tasks */}
@@ -166,47 +142,12 @@ export default function Tasks() {
             </Fab>
 
             {/* Action Drawer */}
-            <Drawer
-                anchor="right"
+            <TaskDrawer
                 open={isDrawerOpen}
                 onClose={handleCloseDrawer}
-                PaperProps={{
-                    sx: { width: { xs: '100%', sm: 400 }, p: 3, pt: 5 }
-                }}
-            >
-                <Typography variant="h5" gutterBottom sx={{ mb: 4 }}>
-                    {editingTask ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'}
-                </Typography>
-
-                <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <TextField
-                        fullWidth
-                        label="Titel"
-                        variant="outlined"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        label="Beschreibung"
-                        variant="outlined"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        multiline
-                        rows={4}
-                    />
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 'auto', pt: 4 }}>
-                    <Button variant="outlined" onClick={handleCancel} color="inherit">
-                        Abbrechen
-                    </Button>
-                    <Button variant="contained" onClick={handleSave} disabled={!title.trim()}>
-                        Speichern
-                    </Button>
-                </Box>
-            </Drawer>
+                task={editingTask}
+                onSave={handleSaveTask}
+            />
         </Box>
     );
 }
