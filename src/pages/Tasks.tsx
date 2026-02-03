@@ -73,7 +73,7 @@ export default function Tasks() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <Typography variant="h4" sx={{ fontWeight: 100, color: 'text.secondary' }}>
-                            Tasks
+                            Aufgaben
                         </Typography>
                         <FormControl size="small" sx={{ minWidth: 200 }}>
                             <Select
@@ -161,15 +161,25 @@ export default function Tasks() {
                 {/* Completed Tasks */}
                 {completedTasks.length > 0 && (
                     <Box>
-                        <Divider textAlign="left" sx={{
-                            my: 4,
-                            "&::before, &::after": {
-                                borderColor: 'rgba(73, 181, 23, 0.5)',
-                                borderTopWidth: 2
-                            }
-                        }} >
-                            <Chip icon={<TaskAltIcon />} label="Abgeschlossene Aufgaben" color="success" />
-                        </Divider>
+                        <Paper
+                            component={motion.div}
+                            layout
+                            transition={spring}
+                            elevation={0}
+                            sx={{
+                                my: 4,
+                                p: 2,
+                                backgroundColor: 'rgba(255, 255, 255, 0.30)',
+                                backdropFilter: 'blur(4px)',
+                                borderRadius: 4
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="h4" sx={{ fontWeight: 100, color: 'text.secondary' }}>
+                                    Abgeschlossene Aufgaben
+                                </Typography>
+                            </Box>
+                        </Paper>
                         <Box sx={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
