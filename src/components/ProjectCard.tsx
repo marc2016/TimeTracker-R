@@ -11,9 +11,12 @@ import {
     CheckCircleOutline,
     Delete,
     Update,
-    Folder
+    Folder,
+    TaskAlt,
+    AccessTime
 } from "@mui/icons-material";
 import { Project } from "../store/useProjectStore";
+import { useTaskStore } from "../store/useTaskStore";
 
 interface ProjectCardProps {
     project: Project;
@@ -23,6 +26,9 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, onToggle, onDelete, onClick }: ProjectCardProps) {
+
+    const { tasks } = useTaskStore();
+    const projectTasks = tasks.filter(task => task.projectId === project.id);
 
     // Format dates to YYYY-MM-DD HH:mm:ss
     const formatDate = (timestamp: number) => {
@@ -34,6 +40,14 @@ export default function ProjectCard({ project, onToggle, onDelete, onClick }: Pr
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    const formatDuration = (ms: number) => {
+        const seconds = Math.floor(ms / 1000);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -122,9 +136,14 @@ export default function ProjectCard({ project, onToggle, onDelete, onClick }: Pr
                 </Typography>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto', pt: 1, width: '100%', zIndex: 1 }}>
-                    <Update sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
+                    <TaskAlt sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
                     <Typography variant="caption" color="text.disabled">
-                        {formatDate(project.updatedAt)}
+                        {projectTasks.length}
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <AccessTime sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
+                    <Typography variant="caption" color="text.disabled">
+                        {formatDuration(projectTasks.reduce((total, task) => total + task.accumulatedDuration, 0))}
                     </Typography>
                 </Box>
             </CardActionArea>
