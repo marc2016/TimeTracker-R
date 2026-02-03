@@ -220,7 +220,6 @@ export default function RootLayout() {
         { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
         { text: "Projects", icon: <AccountTreeIcon />, path: "/projects" },
         { text: "Tasks", icon: <TaskAlt />, path: "/tasks" },
-        { text: "Test", icon: <BugReport />, path: "/test" },
         { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
     ];
 
