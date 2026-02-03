@@ -5,7 +5,8 @@ import {
     IconButton,
     Box,
     Divider,
-    CardActionArea
+    CardActionArea,
+    Chip
 } from "@mui/material";
 import {
     CheckCircleOutline,
@@ -13,9 +14,11 @@ import {
     Update,
     Adjust,
     PlayArrow,
-    Pause
+    Pause,
+    Folder
 } from "@mui/icons-material";
 import { Task } from "../store/useTaskStore";
+import { useProjectStore } from "../store/useProjectStore";
 
 interface TaskCardProps {
     task: Task;
@@ -24,6 +27,8 @@ interface TaskCardProps {
     onDelete: (id: string) => void;
     onClick?: (task: Task) => void;
 }
+
+
 
 export default function TaskCard({ task, onToggle, onToggleTimer, onDelete, onClick }: TaskCardProps) {
     const isRunning = !!task.lastStartTime;
@@ -50,17 +55,11 @@ export default function TaskCard({ task, onToggle, onToggleTimer, onDelete, onCl
     // If I put `useNow` hook here it will re-render the card.
 
 
-    // Format dates to YYYY-MM-DD HH:mm:ss
-    const formatDate = (timestamp: number) => {
-        const date = new Date(timestamp);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    };
+
+
+    // Get projects from store
+    const projects = useProjectStore((state) => state.projects);
+    const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
 
     return (
         <Card
@@ -148,11 +147,32 @@ export default function TaskCard({ task, onToggle, onToggleTimer, onDelete, onCl
                     {task.description}
                 </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto', pt: 1, width: '100%', zIndex: 1 }}>
-                    <Update sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
-                    <Typography variant="caption" color="text.disabled">
-                        {formatDuration(currentDuration)} • {formatDate(task.updatedAt)}
-                    </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto', pt: 1, width: '100%', zIndex: 1, justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Update sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
+                        <Typography variant="caption" color="text.disabled">
+                            {formatDuration(currentDuration)}
+                        </Typography>
+                    </Box>
+                    {project && (
+                        <Chip
+                            icon={<Folder style={{ color: 'white' }} />}
+                            label={project.title}
+                            size="small"
+                            sx={{
+                                bgcolor: project.color,
+                                color: 'white', // Default to white text, maybe dynamic later
+                                height: 24,
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                ml: 1,
+                                '& .MuiChip-icon': {
+                                    color: 'inherit',
+                                    fontSize: 16
+                                }
+                            }}
+                        />
+                    )}
                 </Box>
             </CardActionArea>
 
