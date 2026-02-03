@@ -1,22 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Typography,
     Box,
     Divider,
     Fab,
-    Chip
+    Chip,
+    Paper,
+    Select,
+    MenuItem,
+    FormControl
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useTaskStore, Task } from "../store/useTaskStore";
+import { useProjectStore } from "../store/useProjectStore";
 import TaskCard from "../components/TaskCard";
 import TaskDrawer from "../components/TaskDrawer";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 export default function Tasks() {
     const { tasks, addTask, updateTask, toggleTask, toggleTaskTimer, deleteTask } = useTaskStore();
+    const { projects, init: initProjects } = useProjectStore();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
+
+    useEffect(() => {
+        initProjects();
+    }, [initProjects]);
 
     const handleOpenDrawer = (task?: Task) => {
         setEditingTask(task || null);
@@ -35,18 +46,83 @@ export default function Tasks() {
         }
     };
 
-    const openTasks = tasks.filter(task => !task.completed).sort((a, b) => b.createdAt - a.createdAt);
-    const completedTasks = tasks.filter(task => task.completed).sort((a, b) => b.updatedAt - a.updatedAt);
+    const filteredTasks = tasks.filter(task => {
+        if (selectedProjectId === 'all') return true;
+        if (selectedProjectId === 'unassigned') return task.projectId === null;
+        return task.projectId === selectedProjectId;
+    });
+
+    const openTasks = filteredTasks.filter(task => !task.completed).sort((a, b) => b.createdAt - a.createdAt);
+    const completedTasks = filteredTasks.filter(task => task.completed).sort((a, b) => b.updatedAt - a.updatedAt);
 
     return (
         <Box sx={{ pb: 10 }}> {/* Added padding for FAB */}
+
+            <Paper
+                elevation={0}
+                sx={{
+                    mb: 4,
+                    p: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.30)',
+                    backdropFilter: 'blur(4px)',
+                    borderRadius: 4
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 100, color: 'text.secondary' }}>
+                            Tasks
+                        </Typography>
+                        <FormControl size="small" sx={{ minWidth: 200 }}>
+                            <Select
+                                value={selectedProjectId}
+                                onChange={(e) => setSelectedProjectId(e.target.value)}
+                                displayEmpty
+                                variant="outlined"
+                                sx={{
+                                    backgroundColor: 'rgba(255,255,255,0.5)',
+                                    borderRadius: 2,
+                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                }}
+                            >
+                                <MenuItem value="all">Alle Aufgaben</MenuItem>
+                                <MenuItem value="unassigned">Kein Projekt</MenuItem>
+                                <Divider />
+                                {projects.map((project) => (
+                                    <MenuItem key={project.id} value={project.id}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: project.color }} />
+                                            {project.title}
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 3 }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Total: <Box component="span" sx={{ fontWeight: 500, color: 'text.primary' }}>{filteredTasks.length}</Box>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Active: <Box component="span" sx={{ fontWeight: 500, color: 'primary.main' }}>{openTasks.length}</Box>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Completed: <Box component="span" sx={{ fontWeight: 500, color: 'success.main' }}>{completedTasks.length}</Box>
+                        </Typography>
+                    </Box>
+                </Box>
+            </Paper>
 
             <LayoutGroup>
                 {/* Open Tasks */}
                 <Box sx={{ mb: 6 }}>
                     {openTasks.length === 0 && (
                         <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontStyle: 'italic' }}>
-                            Keine offenen Aufgaben.
+                            Keine offenen Aufgaben in dieser Ansicht.
                         </Typography>
                     )}
                     <Box sx={{
