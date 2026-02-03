@@ -26,6 +26,7 @@ import {
     Pause
 } from "@mui/icons-material";
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { useTaskStore } from "../store/useTaskStore";
@@ -239,6 +240,7 @@ export default function RootLayout() {
 
     const menuItems = [
         { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+        { text: "Projects", icon: <AccountTreeIcon />, path: "/projects" },
         { text: "Tasks", icon: <TaskAlt />, path: "/tasks" },
         { text: "Test", icon: <BugReport />, path: "/test" },
         { text: "Settings", icon: <SettingsIcon />, path: "/settings" },

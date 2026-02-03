@@ -5,22 +5,29 @@ import {
     TextField,
     Button,
     Switch,
-    FormControlLabel
+    FormControlLabel,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Task } from "../store/useTaskStore";
+import { useProjectStore } from "../store/useProjectStore";
 
 interface TaskDrawerProps {
     open: boolean;
     onClose: () => void;
     task: Task | null;
-    onSave: (title: string, description: string, completed: boolean) => void;
+    onSave: (title: string, description: string, completed: boolean, projectId: string | null) => void;
 }
 
 export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerProps) {
+    const { projects } = useProjectStore();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [completed, setCompleted] = useState(false);
+    const [projectId, setProjectId] = useState<string>(""); // Select expects string (empty for none)
 
     useEffect(() => {
         if (open) {
@@ -28,17 +35,19 @@ export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerPr
                 setTitle(task.title);
                 setDescription(task.description);
                 setCompleted(task.completed);
+                setProjectId(task.projectId || "");
             } else {
                 setTitle("");
                 setDescription("");
                 setCompleted(false);
+                setProjectId("");
             }
         }
     }, [open, task]);
 
     const handleSave = () => {
         if (!title.trim()) return;
-        onSave(title, description, completed);
+        onSave(title, description, completed, projectId || null);
         onClose();
     };
 
@@ -64,6 +73,25 @@ export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerPr
                     onChange={(e) => setTitle(e.target.value)}
                     required
                 />
+
+                <FormControl fullWidth>
+                    <InputLabel>Projekt</InputLabel>
+                    <Select
+                        value={projectId}
+                        label="Projekt"
+                        onChange={(e) => setProjectId(e.target.value)}
+                    >
+                        <MenuItem value="">
+                            <em>Kein Projekt</em>
+                        </MenuItem>
+                        {projects.map((p) => (
+                            <MenuItem key={p.id} value={p.id}>
+                                {p.title}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
                 <TextField
                     fullWidth
                     label="Beschreibung"

@@ -27,11 +27,11 @@ export default function Tasks() {
         setIsDrawerOpen(false);
     };
 
-    const handleSaveTask = (title: string, description: string, completed: boolean) => {
+    const handleSaveTask = (title: string, description: string, completed: boolean, projectId: string | null) => {
         if (editingTask) {
-            updateTask(editingTask.id, title, description, completed);
+            updateTask(editingTask.id, title, description, completed, projectId);
         } else {
-            addTask(title, description);
+            addTask(title, description, projectId);
         }
     };
 
