@@ -18,6 +18,8 @@ import TaskCard from "../components/TaskCard";
 import TaskDrawer from "../components/TaskDrawer";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
+import { spring } from "../constants/animations";
+
 export default function Tasks() {
     const { tasks, addTask, updateTask, toggleTask, toggleTaskTimer, deleteTask } = useTaskStore();
     const { projects, init: initProjects } = useProjectStore();
@@ -140,7 +142,7 @@ export default function Tasks() {
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.3 }}
+                                    transition={spring}
                                     sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
                                 >
                                     <TaskCard
@@ -183,7 +185,7 @@ export default function Tasks() {
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.8 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={spring}
                                         sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
                                     >
                                         <TaskCard

@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import { useProjectStore, Project } from "../store/useProjectStore";
 import ProjectCard from "../components/ProjectCard";
 import ProjectDrawer from "../components/ProjectDrawer";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+
+import { spring } from "../constants/animations";
 
 export default function Projects() {
     const { projects, init, deleteProject, toggleProjectCompletion } = useProjectStore();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const completedProjects = projects.filter(p => p.completed);
+    const activeProjects = projects.filter(p => !p.completed);
 
     useEffect(() => {
         init();
@@ -59,19 +64,98 @@ export default function Projects() {
                 </Box>
             </Paper>
 
-            <Grid container spacing={3}>
-                {projects.map((project) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={project.id}>
-                        <ProjectCard
-                            project={project}
-                            onClick={handleCardClick}
-                            onDelete={deleteProject}
-                            onToggle={toggleProjectCompletion}
-                        />
-                    </Grid>
-                ))}
-            </Grid>
+            <LayoutGroup>
 
+                <Box
+                    component={motion.div}
+                    layout
+                    transition={spring}
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: 2
+                    }}
+                >
+                    <AnimatePresence mode="popLayout">
+                        {activeProjects.map((project) => (
+                            <Box
+                                key={project.id}
+                                component={motion.div}
+                                layoutId={project.id}
+                                layout
+                                //initial={{ opacity: 0 }}
+                                //animate={{ opacity: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={spring}
+                                sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
+                            >
+                                <ProjectCard
+                                    project={project}
+                                    onClick={handleCardClick}
+                                    onDelete={deleteProject}
+                                    onToggle={toggleProjectCompletion}
+                                />
+                            </Box>
+                        ))}
+                    </AnimatePresence>
+                </Box>
+
+                <Paper
+                    component={motion.div}
+                    layout
+                    transition={spring}
+                    elevation={0}
+                    sx={{
+                        my: 4,
+                        p: 2,
+                        backgroundColor: 'rgba(255, 255, 255, 0.30)',
+                        backdropFilter: 'blur(4px)',
+                        borderRadius: 4
+                    }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h4" sx={{ fontWeight: 100, color: 'text.secondary' }}>
+                            Completed Projects
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                <Box
+                    component={motion.div}
+                    layout
+                    transition={spring}
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: 2
+                    }}
+                >
+                    <AnimatePresence mode="popLayout">
+                        {completedProjects.map((project) => (
+                            <Box
+                                key={project.id}
+                                component={motion.div}
+                                layoutId={project.id}
+                                layout
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={spring}
+                                sx={{ maxWidth: 280, width: '100%', mx: 'auto' }}
+                            >
+                                <ProjectCard
+                                    project={project}
+                                    onClick={handleCardClick}
+                                    onDelete={deleteProject}
+                                    onToggle={toggleProjectCompletion}
+                                />
+                            </Box>
+                        ))}
+                    </AnimatePresence>
+                </Box>
+
+
+            </LayoutGroup>
             <Fab
                 aria-label="add"
                 sx={{
