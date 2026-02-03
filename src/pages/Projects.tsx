@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Fab, Paper } from "@mui/material";
+import { Box, Typography, Fab, Paper } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import { useProjectStore, Project } from "../store/useProjectStore";

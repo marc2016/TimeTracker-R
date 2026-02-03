@@ -4,14 +4,13 @@ import {
     Box,
     Divider,
     Fab,
-    Chip,
     Paper,
     Select,
     MenuItem,
     FormControl
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import TaskAltIcon from "@mui/icons-material/TaskAlt";
+// import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useTaskStore, Task } from "../store/useTaskStore";
 import { useProjectStore } from "../store/useProjectStore";
 import TaskCard from "../components/TaskCard";
@@ -21,7 +20,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { spring } from "../constants/animations";
 
 export default function Tasks() {
-    const { tasks, addTask, updateTask, toggleTask, toggleTaskTimer, deleteTask } = useTaskStore();
+    const { tasks, addTask, updateTask, updateTaskDuration, toggleTask, toggleTaskTimer, deleteTask } = useTaskStore();
     const { projects, init: initProjects } = useProjectStore();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -40,11 +39,17 @@ export default function Tasks() {
         setIsDrawerOpen(false);
     };
 
-    const handleSaveTask = (title: string, description: string, completed: boolean, projectId: string | null) => {
+    const handleSaveTask = async (title: string, description: string, completed: boolean, projectId: string | null, duration?: number) => {
         if (editingTask) {
-            updateTask(editingTask.id, title, description, completed, projectId);
+            await updateTask(editingTask.id, title, description, completed, projectId);
+            if (duration !== undefined && duration !== editingTask.accumulatedDuration) {
+                await updateTaskDuration(editingTask.id, duration);
+            }
         } else {
-            addTask(title, description, projectId);
+            await addTask(title, description, projectId);
+            // Note: New tasks are created with 0 duration by default. 
+            // If we want to support setting duration on creation, we need to update addTask signature or call updateTaskDuration after creation.
+            // For now, let's assume new tasks start at 0.
         }
     };
 

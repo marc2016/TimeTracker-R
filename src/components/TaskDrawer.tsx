@@ -19,7 +19,7 @@ interface TaskDrawerProps {
     open: boolean;
     onClose: () => void;
     task: Task | null;
-    onSave: (title: string, description: string, completed: boolean, projectId: string | null) => void;
+    onSave: (title: string, description: string, completed: boolean, projectId: string | null, duration?: number) => void;
 }
 
 export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerProps) {
@@ -28,6 +28,7 @@ export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerPr
     const [description, setDescription] = useState("");
     const [completed, setCompleted] = useState(false);
     const [projectId, setProjectId] = useState<string>(""); // Select expects string (empty for none)
+    const [duration, setDuration] = useState("00:00:00");
 
     useEffect(() => {
         if (open) {
@@ -36,18 +37,36 @@ export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerPr
                 setDescription(task.description);
                 setCompleted(task.completed);
                 setProjectId(task.projectId || "");
+
+                // Format duration
+                const seconds = Math.floor(task.accumulatedDuration / 1000);
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                setDuration(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
             } else {
                 setTitle("");
                 setDescription("");
                 setCompleted(false);
                 setProjectId("");
+                setDuration("00:00:00");
             }
         }
     }, [open, task]);
 
     const handleSave = () => {
         if (!title.trim()) return;
-        onSave(title, description, completed, projectId || null);
+
+        // Parse duration
+        let durationMs = 0;
+        const parts = duration.split(':').map(p => parseInt(p, 10));
+        if (parts.length === 3) {
+            durationMs = (parts[0] * 3600 + parts[1] * 60 + parts[2]) * 1000;
+        } else if (parts.length === 2) {
+            durationMs = (parts[0] * 3600 + parts[1] * 60) * 1000;
+        }
+
+        onSave(title, description, completed, projectId || null, durationMs);
         onClose();
     };
 
@@ -113,6 +132,15 @@ export default function TaskDrawer({ open, onClose, task, onSave }: TaskDrawerPr
                         label={completed ? "Abgeschlossen" : "Offen"}
                     />
                 )}
+
+                <TextField
+                    fullWidth
+                    label="Dauer (HH:MM:SS)"
+                    variant="outlined"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder="00:00:00"
+                />
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 'auto', pt: 4 }}>

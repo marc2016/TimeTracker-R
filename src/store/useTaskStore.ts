@@ -18,6 +18,7 @@ interface TaskState {
     lastActiveTaskId: string | null;
     addTask: (title: string, description: string, projectId?: string | null) => Promise<void>;
     updateTask: (id: string, title: string, description: string, completed: boolean, projectId?: string | null) => Promise<void>;
+    updateTaskDuration: (id: string, durationMs: number) => Promise<void>;
     toggleTask: (id: string) => Promise<void>;
     toggleTaskTimer: (id: string) => Promise<void>;
     deleteTask: (id: string) => Promise<void>;
@@ -79,6 +80,37 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             });
         } catch (error) {
             console.error('Failed to update task:', error);
+        }
+    },
+    updateTaskDuration: async (id: string, durationMs: number) => {
+        const task = get().tasks.find(t => t.id === id);
+        if (!task) return;
+
+        const now = Date.now();
+        const newLastStartTime = task.lastStartTime ? now : null; // Reset start time if running
+
+        try {
+            await db.updateTable('tasks')
+                .set({
+                    accumulated_duration: durationMs,
+                    last_start_time: newLastStartTime,
+                    updated_at: now
+                })
+                .where('id', '=', id)
+                .execute();
+
+            set({
+                tasks: get().tasks.map(t =>
+                    t.id === id ? {
+                        ...t,
+                        accumulatedDuration: durationMs,
+                        lastStartTime: newLastStartTime,
+                        updatedAt: now
+                    } : t
+                )
+            });
+        } catch (error) {
+            console.error('Failed to update task duration:', error);
         }
     },
     toggleTask: async (id: string) => {
