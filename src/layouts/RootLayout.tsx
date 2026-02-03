@@ -14,7 +14,8 @@ import {
     IconButton,
     CSSObject,
     Theme,
-    styled
+    styled,
+    Badge
 } from "@mui/material";
 import { useEffect } from "react";
 import {
@@ -161,48 +162,25 @@ const ActiveTaskFooter = ({ open }: { open: boolean }) => {
                 </>
             ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 0.5 }}>
-                    <IconButton
-                        color="primary"
-                        onClick={() => toggleTaskTimer(activeTask.id)}
-                        title={activeTask.title}
-                        size="small"
-                        sx={{
-                            p: 0,
-                            width: 30,
-                            height: 30,
-                            position: 'relative' // For absolute positioning of children if needed, or we use a Box wrapper
-                        }}
-                    >
-                        {/* Layered Icons */}
-                        <Box sx={{ position: 'relative', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {/* Base Clock Icon - slightly faded or behind */}
-                            <AccessTimeIcon
-                                sx={{
-                                    fontSize: 24,
-                                    opacity: 0.3,
-                                    position: 'absolute'
-                                }}
-                            />
-                            {/* Overlay Action Icon */}
-                            {isRunning ? (
-                                <Pause
-                                    sx={{
-                                        fontSize: 16,
-                                        zIndex: 1,
-                                        color: 'primary.main'
-                                    }}
-                                />
-                            ) : (
-                                <PlayArrow
-                                    sx={{
-                                        fontSize: 16,
-                                        zIndex: 1,
-                                        color: 'primary.main'
-                                    }}
-                                />
-                            )}
-                        </Box>
+                    <IconButton aria-label="cart" onClick={() => toggleTaskTimer(activeTask.id)}>
+                        <Badge anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                        }} badgeContent={isRunning ? (<Pause
+                            sx={{
+
+                                fontSize: 8,
+                            }}
+                        />) : (<PlayArrow
+                            sx={{
+                                fontSize: 8,
+                            }}
+                        />)} color="primary">
+                            <AccessTimeIcon />
+                        </Badge>
                     </IconButton>
+
+
                     <Typography
                         variant="caption"
                         sx={{
