@@ -6,7 +6,7 @@ import ProjectCard from "../components/ProjectCard";
 import ProjectDrawer from "../components/ProjectDrawer";
 
 export default function Projects() {
-    const { projects, init } = useProjectStore();
+    const { projects, init, deleteProject, toggleProjectCompletion } = useProjectStore();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -38,7 +38,12 @@ export default function Projects() {
             <Grid container spacing={3}>
                 {projects.map((project) => (
                     <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={project.id}>
-                        <ProjectCard project={project} onClick={handleCardClick} />
+                        <ProjectCard
+                            project={project}
+                            onClick={handleCardClick}
+                            onDelete={deleteProject}
+                            onToggle={toggleProjectCompletion}
+                        />
                     </Grid>
                 ))}
             </Grid>

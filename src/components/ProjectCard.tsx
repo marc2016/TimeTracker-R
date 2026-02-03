@@ -1,47 +1,161 @@
-import { Card, CardActionArea, CardContent, Typography, Box, Chip } from "@mui/material";
+import {
+    Card,
+    CardActions,
+    Typography,
+    IconButton,
+    Box,
+    Divider,
+    CardActionArea
+} from "@mui/material";
+import {
+    CheckCircleOutline,
+    Delete,
+    Update,
+    Folder
+} from "@mui/icons-material";
 import { Project } from "../store/useProjectStore";
 
 interface ProjectCardProps {
     project: Project;
-    onClick: (project: Project) => void;
+    onToggle: (id: string) => void;
+    onDelete: (id: string) => void;
+    onClick?: (project: Project) => void;
 }
 
-export default function ProjectCard({ project, onClick }: ProjectCardProps) {
+export default function ProjectCard({ project, onToggle, onDelete, onClick }: ProjectCardProps) {
+
+    // Format dates to YYYY-MM-DD HH:mm:ss
+    const formatDate = (timestamp: number) => {
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
     return (
         <Card
+            variant="outlined"
             sx={{
-                height: '100%',
+                width: '100%',
+                minHeight: 200,
                 display: 'flex',
                 flexDirection: 'column',
-                borderLeft: `6px solid ${project.color}`,
-                transition: 'transform 0.2s',
+                position: 'relative',
+                overflow: 'hidden',
+                bgcolor: '#F5F5F5',
+                transition: '0.3s',
                 '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
+                    boxShadow: 6,
+                    cursor: 'pointer'
                 }
             }}
         >
-            <CardActionArea onClick={() => onClick(project)} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
-                <CardContent sx={{ width: '100%' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Typography variant="h6" component="div" gutterBottom noWrap>
-                            {project.title}
-                        </Typography>
-                        {project.completed && (
-                            <Chip label="Done" color="success" size="small" variant="outlined" />
-                        )}
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{
+            {/* Background Icon */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '85%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                }}
+            >
+                {project.completed ? (
+                    <CheckCircleOutline sx={{ fontSize: 200, color: '#C8E6C9' }} />
+                ) : (
+                    // Use project color/opacity for the folder icon
+                    <Folder sx={{ fontSize: 200, color: project.color ? project.color : '#FFE0B2', opacity: 0.2 }} />
+                )}
+            </Box>
+
+            <CardActionArea
+                onClick={() => onClick && onClick(project)}
+                sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    zIndex: 1,
+                    height: '100%'
+                }}
+            >
+                <Typography
+                    variant="h6"
+                    component="div"
+                    sx={{
+                        width: '100%',
+                        fontWeight: 500,
+                        lineHeight: 1.2,
+                        mb: 1,
+                        whiteSpace: 'normal',
+                        wordWrap: 'break-word',
+                        zIndex: 1
+                    }}
+                >
+                    {project.title}
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        width: '100%',
+                        whiteSpace: 'pre-wrap',
+                        wordWrap: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        mb: 2
-                    }}>
-                        {project.description || "No description"}
+                        flexGrow: 1,
+                        zIndex: 1
+                    }}
+                >
+                    {project.description || "No description"}
+                </Typography>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto', pt: 1, width: '100%', zIndex: 1 }}>
+                    <Update sx={{ fontSize: 16, mr: 0.5, color: 'text.disabled' }} />
+                    <Typography variant="caption" color="text.disabled">
+                        {formatDate(project.updatedAt)}
                     </Typography>
-                </CardContent>
+                </Box>
             </CardActionArea>
+
+            <Divider />
+
+            <CardActions sx={{ bgcolor: 'white', justifyContent: 'flex-end', zIndex: 2, p: 1 }} onClick={(e) => e.stopPropagation()}>
+                {/* Toggle Button */}
+                <IconButton
+                    size="small"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggle(project.id);
+                    }}
+                    sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                >
+                    {project.completed ? <Folder /> : <CheckCircleOutline />}
+                </IconButton>
+
+                {/* Delete Button */}
+                <IconButton
+                    size="small"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(project.id);
+                    }}
+                    sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                >
+                    <Delete />
+                </IconButton>
+            </CardActions>
         </Card>
     );
 }
