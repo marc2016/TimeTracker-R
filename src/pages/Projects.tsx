@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Fab } from "@mui/material";
+import { Box, Typography, Grid, Fab, Paper } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import { useProjectStore, Project } from "../store/useProjectStore";
@@ -31,9 +31,33 @@ export default function Projects() {
 
     return (
         <Box>
-            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-                Projects
-            </Typography>
+            <Paper
+                elevation={0}
+                sx={{
+                    mb: 4,
+                    p: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.30)',
+                    backdropFilter: 'blur(4px)',
+                    borderRadius: 4
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 100, color: 'text.secondary' }}>
+                        Projects
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 3 }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Total: <Box component="span" sx={{ fontWeight: 500, color: 'text.primary' }}>{projects.length}</Box>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Active: <Box component="span" sx={{ fontWeight: 500, color: 'primary.main' }}>{projects.filter(p => !p.completed).length}</Box>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 300 }}>
+                            Completed: <Box component="span" sx={{ fontWeight: 500, color: 'success.main' }}>{projects.filter(p => p.completed).length}</Box>
+                        </Typography>
+                    </Box>
+                </Box>
+            </Paper>
 
             <Grid container spacing={3}>
                 {projects.map((project) => (
@@ -49,9 +73,14 @@ export default function Projects() {
             </Grid>
 
             <Fab
-                color="primary"
                 aria-label="add"
-                sx={{ position: 'fixed', bottom: 32, right: 32 }}
+                sx={{
+                    position: 'fixed', bottom: 32, right: 32, bgcolor: 'white',
+                    color: 'black',
+                    '&:hover': {
+                        bgcolor: '#f5f5f5' // slightly grey on hover
+                    }
+                }}
                 onClick={handleAddClick}
             >
                 <AddIcon />
